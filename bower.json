@@ -1,0 +1,19 @@
+{
+  "name": "wf-meercat",
+  "version": "0.0.0",
+  "homepage": "https://github.com/mrprkr/wf-meercat",
+  "authors": [
+    "Michael Parker <parker_michael@me.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4.7"
+  }
+}
