@@ -5,9 +5,10 @@ var jade 			= require('jade');
 var mongoose 	= require('mongoose');
 var bodyParser	= require('body-parser');
 var morgan			= require('morgan');
+var methodOverride = require('method-override');
 
 var jwt 			= require('jsonwebtoken');
-var config 		= require('./config')
+var config 		= require('./config/config')
 var User 			= require('./app/models/user');
 
 // ===============
@@ -29,37 +30,15 @@ app.set('view engine', 'jade');
 app.set('views', './app/views/')
 
 
-
-
-
-// ===============
-// App routes
-// ===============
-app.get('/', function(req,res){
-	res.render('home')
-});
-
-app.get('/setup', function(req, res){
-	// create a simple user
-	var user = new User({
-		name: req.body.name,
-		password: req.body.password,
-		admin: req.body.admin
-	})
-	// save the new user
-	user.save(function(err){
-		if(err) throw err;
-		console.log('User saved successfully');
-		res.json({success:true})
-	});
-});
-
-
-
 var apiRoutes = require('./app/routes/apiRoutes');
-
-
 app.use('/api', apiRoutes)
+
+
+// override with the X-HTTP-Method-Override header in the request. simulate DELETE/PUT
+app.use(methodOverride('X-HTTP-Method-Override')); 
+
+// set the static files location /public/img will be /img for users
+app.use(express.static(__dirname + '/public')); 
 
 
 

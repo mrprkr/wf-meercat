@@ -9,7 +9,6 @@ var bodyParser	= require('body-parser');
 var morgan			= require('morgan');
 
 var jwt 			= require('jsonwebtoken');
-var config 		= require('../../config');
 var User 			= require('../models/user');
 
 
@@ -22,6 +21,58 @@ apiRoutes.get('/', function(req, res){
 	res.json({message: 'Welcome to the API'})
 });
 
+
+// ===================
+// USERS
+// ===================
+
+// show a list of users
+apiRoutes.get('/users', function(req,res){
+		User.find(function(err, users){
+		res.json(users);
+	});
+})
+
+
+// create a new user
+apiRoutes.post('/user', function(req, res){
+	// populate the scheme
+	var user = new User({
+		name: req.body.name,
+		password: req.body.password,
+		admin: req.body.admin || false
+	})
+	// save the new user
+	user.save(function(err){
+		if(err) throw err;
+		console.log('User saved successfully');
+		res.json({success:true})
+	});
+});
+
+
+
+// Lookup a single user
+apiRoutes.get('/user/:userId', function(req, res){
+	User.findById(req.params.userId, function(err, user){
+		if(err){
+			res.send(err)
+		} else{
+			res.json(user);
+		}
+	});
+});
+
+// delete a single user
+apiRoutes.delete('/user/:userId', function(req, res){
+	User.remove({_id:req.params.userId}, function(err, user){
+		if(err){
+			res.send(err)
+		} else{
+			res.json({success:true, message:"User deleted"})
+		}
+	});
+});
 
 
 // authenticate a user and generate a token
@@ -49,10 +100,11 @@ apiRoutes.post('/authenticate', function(req,res){
 	})
 })
 
-// validate a token
-apiRoutes.use(function(req,res,next){
-	var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
+
+// function to check if the user has a token or not
+var hasToken = function(req,res){
+	var token = req.body.token || req.query.token || req.headers['x-access-token'];
 	if(token) {
 		jwt.verify(token, app.get('superSecret'), function(err, decoded){
 			if(err){
@@ -69,17 +121,6 @@ apiRoutes.use(function(req,res,next){
 			success:false, message:'no token provided'
 		});
 	}
-})
-
-
-
-
-// get all users
-apiRoutes.get('/users', function(req, res){
-	User.find({}, function(err, users){
-		res.json(users);
-	});
-});
-
+}
 
 module.exports = apiRoutes;
